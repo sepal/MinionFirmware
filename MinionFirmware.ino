@@ -3,9 +3,12 @@
 #include <SPI.h>
 #include <SdFat.h>
 #include <SFEMP3Shield.h>
-#include <MemoryFree.h>
 #include <L3G.h>
 #include <LSM303.h>
+
+// Set to 1 to print debug messages throught the Serial line.
+#define DEBUGGING 0
+
 
 // Minimum touch value.
 const int FSR_THREASHOLD = 100;
@@ -39,13 +42,14 @@ boolean fetch_fsr_data = true;
 
 // Sound file indeces.
 enum SOUND_FILES {
-  SND_RANDOM_MIN = 0,
+  SND_RANDOM_MIN = 1,
   SND_RANDOM_MAX = 4,
   SND_SHAKE = 0,
+  SND_READY = 5, 
 };
 
 // Files should be called [digit].mp3
-char filename[5][6];
+char filename[9][6];
 
 // Holds the accelerometer values
 int accel_x, accel_y, accel_z;
@@ -55,16 +59,22 @@ boolean led_on = false;
 void errorLoop();
 
 void setup () {
+  #ifdef DEBUGGING
   Serial.begin(9600);
+  #endif
   
   // Set the pinmode for the LED.
   pinMode(LED_PIN, OUTPUT);
   analogWrite(LED_PIN, 0);
   
+  
   Wire.begin();
   
   if (accel_init()) {
     errorLoop();
+    #ifdef DEBUGGING
+    Serial.println("Error initializing accelerometer");
+    #endif
   }
   
   delay(20);
@@ -73,8 +83,16 @@ void setup () {
   
   if (sound_init(10)) {
     errorLoop();
+    #ifdef DEBUGGING
+    Serial.println("Error initializing sound");
+    #endif
   }
   
+  delay(1000);
+  MP3player.playMP3(filename[SND_READY]);
+  #ifdef DEBUGGING
+  Serial.println("Ready");
+  #endif
 }
 
 

@@ -72,7 +72,8 @@ void imu_calibrate() {
   
   for(int y=0; y<6; y++)
     imu_offset[y] = imu_offset[y]/32;
-    
+  
+  // Uncomment the following line if you want to substract the gravity from the offset fetched by the routine above. 
   //imu_offset[3] -= IMU_GRAVITY * imu_sign[3];
 }
 
@@ -93,14 +94,24 @@ void imu_update() {
       
     
     if (imu_shake_counter >= IMU_SHAKE_MIN) {
+      #ifdef DEBUGGING
+      Serial.println("Lighting up led and playing sound.");
+      #endif
       digitalWrite(LED_PIN, HIGH);
       led_on = true;
       led_timer = millis();
       imu_shake_counter = 0;
+      if (MP3player.isPlaying()) {
+        MP3player.stopTrack();
+      }
+      MP3player.playMP3(filename[SND_SHAKE]);
     }
   }
   
   if (millis()-led_timer >= LED_ON_TIME && led_on) {
+    #ifdef DEBUGGING
+    Serial.println("turning of led.");
+    #endif
     led_on = false;
     digitalWrite(LED_PIN, LOW);
   }

@@ -33,9 +33,9 @@ boolean sound_init(int volume) {
   {
     // Get filename
     file.getFilename(tempfilename);
-    Serial.println(tempfilename[0]);
-    // Does the filename start with char '1' through (char)SND_RANDOM_MAX+1?      
-    if (tempfilename[0] >= SND_RANDOM_MIN+49 && tempfilename[0] <= SND_RANDOM_MAX+49)
+    // We can have up to 10 sound files, althought not all must be used.
+    // See the SOUND_FILES enumeration to see which files are used for what.
+    if (tempfilename[0] >= '0' && tempfilename[0] <= '9')
     {
       // Yes! subtract char '1' to get an index of 0 through 4.
       index = tempfilename[0] - '1';
@@ -43,10 +43,12 @@ boolean sound_init(int volume) {
       // Copy the data to our filename array.
       strcpy(filename[index],tempfilename);
   
+      #ifdef DEBUGGING
       Serial.print(F("found a file with a leading "));
       Serial.print(index+1);
       Serial.print(F(": "));
       Serial.println(filename[index]);
+      #endif
     }
       
     file.close();
@@ -75,10 +77,11 @@ void sound_update() {
   
   int fsr_value = analogRead(FSR_PIN);
   if (fsr_value > FSR_THREASHOLD && fetch_fsr_data) {
+    #ifdef DEBUGGING
+    Serial.print("Pressed fsr sensor with a value of:");
     Serial.println(fsr_value);
-    int file = random(0, 4);
+    #endif
+    int file = random(SND_RANDOM_MIN, SND_RANDOM_MAX);
     MP3player.playMP3(filename[file]);
-    Serial.print("freeMemory()=");
-    Serial.println(freeMemory());
   }
 }
