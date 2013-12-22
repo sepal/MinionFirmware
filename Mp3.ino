@@ -2,9 +2,10 @@
 /**
  * Initializes the mp3 and sd card lib and fetches all sound files
  * from the sd card.
+ * @param volume Volume of the mp3 layer, 0 beeing the loudest and 256 beeing off.
  * @return true if there was an error.
  */
-boolean initSound(int volume) {
+boolean sound_init(int volume) {
   int index;
   SdFile file;
   byte result;
@@ -32,9 +33,9 @@ boolean initSound(int volume) {
   {
     // Get filename
     file.getFilename(tempfilename);
-
-    // Does the filename start with char '1' through '5'?      
-    if (tempfilename[0] >= '1' && tempfilename[0] <= '5')
+    Serial.println(tempfilename[0]);
+    // Does the filename start with char '1' through (char)SND_RANDOM_MAX+1?      
+    if (tempfilename[0] >= SND_RANDOM_MIN+49 && tempfilename[0] <= SND_RANDOM_MAX+49)
     {
       // Yes! subtract char '1' to get an index of 0 through 4.
       index = tempfilename[0] - '1';
@@ -63,7 +64,7 @@ boolean initSound(int volume) {
 /**
  * Plays a sound if the FSR Sensor was touched.
  */
-void updateMP3() {
+void sound_update() {
   if (MP3player.isPlaying() && fetch_fsr_data) {
     fetch_fsr_data = false;
     fsr_timer = millis();
