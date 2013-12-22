@@ -2,6 +2,7 @@
 /**
  * Initializes the mp3 and sd card lib and fetches all sound files
  * from the sd card.
+ * @return true if there was an error.
  */
 boolean initSound(int volume) {
   int index;
@@ -56,4 +57,27 @@ boolean initSound(int volume) {
   // Turn on the amplifier chip:
   digitalWrite(EN_GPIO1, HIGH);
   delay(2);
+  return false;
+}
+
+/**
+ * Plays a sound if the FSR Sensor was touched.
+ */
+void updateMP3() {
+  if (MP3player.isPlaying() && fetch_fsr_data) {
+    fetch_fsr_data = false;
+    fsr_timer = millis();
+  }
+  if (millis() - fsr_timer > FSR_TIMER_THREASHOLD && !fetch_fsr_data) {
+    fetch_fsr_data = true;
+  }
+  
+  int fsr_value = analogRead(FSR_PIN);
+  if (fsr_value > FSR_THREASHOLD && fetch_fsr_data) {
+    Serial.println(fsr_value);
+    int file = random(0, 4);
+    MP3player.playMP3(filename[file]);
+    Serial.print("freeMemory()=");
+    Serial.println(freeMemory());
+  }
 }
