@@ -1,8 +1,13 @@
+
+#include <Wire.h>
 #include <SPI.h>
 #include <SdFat.h>
 #include <SFEMP3Shield.h>
 #include <MemoryFree.h>
+#include <L3G.h>
+#include <LSM303.h>
 
+const int IMU_GRAVITY = 256;
 const int FSR_THREASHOLD = 100;
 const int FSR_TIMER_THREASHOLD = 500;
 
@@ -12,6 +17,10 @@ const int SD_CS = 9;
 const int LED_PIN = 3;
 
 
+
+L3G gyro;
+LSM303 compass;
+
 SFEMP3Shield MP3player;
 SdFat sd;
 
@@ -20,25 +29,30 @@ char filename[5][6];
 long fsr_timer = 0;
 boolean fetch_fsr_data = true;
 
+// Holds the accelerometer values
+int accel_x, accel_y, accel_z;
+
+boolean led_on = false;
+
 void errorLoop();
 
 void setup () {
   Serial.begin(9600);
   
   // Set the pinmode for the LED.
-  pinMode(LED_PIN, OUTPUT);
+  /*pinMode(LED_PIN, OUTPUT);
   analogWrite(LED_PIN, 0);
   
   if (initSound(10)) {
     errorLoop();
-  }
+  }*/
   
 }
 
 
 
 void loop() {
-  updateMP3();
+  //updateMP3();
 }
 
 
