@@ -16,6 +16,8 @@ long imu_shake_timer = 0;
 
 long led_timer = 0;
 
+int imu_last_val = 0;
+
 /**
  * Initializes the compass, which also holds the accelerometer.
  */
@@ -74,16 +76,17 @@ void imu_calibrate() {
     imu_offset[y] = imu_offset[y]/32;
   
   // Uncomment the following line if you want to substract the gravity from the offset fetched by the routine above. 
-  //imu_offset[3] -= IMU_GRAVITY * imu_sign[3];
+  imu_offset[3] -= IMU_GRAVITY * imu_sign[3];
 }
 
 void imu_update() {
   // Run the imu fetching at 10 Hz.
-  if (millis() - imu_timer >= 100 && !led_on) {
+  if (millis() - imu_timer >= 100 && !led_on && !special_mode) {
     imu_timer = millis();
     accel_read();
     
-    if (abs(accel_x) >  IMU_SHAKE_THREASHOLD) {
+    // Calculate the difference to the last readout, so that we can ignore the gravity.
+    if (abs(abs(accel_x)-imu_last_val) >  IMU_SHAKE_THREASHOLD) {
       #ifdef DEBUGGING
       Serial.println("Shake it!");
       #endif
@@ -118,9 +121,10 @@ void imu_update() {
       }
       MP3player.playMP3(filename[SND_SHAKE]);
     }
+    imu_last_val = abs(accel_x);
   }
   
-  if (millis()-led_timer >= LED_ON_TIME && led_on) {
+  if (millis()-led_timer >= LED_ON_TIME && led_on && !special_mode) {
     #ifdef DEBUGGING
     Serial.println("Turning led off.");
     #endif

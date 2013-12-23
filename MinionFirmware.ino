@@ -6,8 +6,8 @@
 #include <L3G.h>
 #include <LSM303.h>
 
-// Set to 1 to print debug messages throught the Serial line.
-#define DEBUGGING 0
+// Uncomment the next line to print debug messages throught the Serial line.
+#define DEBUGGING 1
 
 
 // Minimum touch value.
@@ -16,7 +16,7 @@ const int FSR_THREASHOLD = 100;
 const int FSR_TIMER_THREASHOLD = 500;
 
 // Minimum of for the accelerometer value.
-const int IMU_SHAKE_THREASHOLD = 50;
+const int IMU_SHAKE_THREASHOLD = 200;
 // Number of time we have to move the minion up & down before he glows.
 const int IMU_SHAKE_MIN = 5;
 // Time until the shake counter is reseted for the minion not beeing shaked.
@@ -40,12 +40,18 @@ SdFat sd;
 long fsr_timer = 0;
 boolean fetch_fsr_data = true;
 
+// special mode plays a sound and blinks the leds.
+boolean special_mode = false;
+long special_mode_timer = 0;
+const int SPECIAL_MODE_TIME = 500;
+
 // Sound file indeces.
 enum SOUND_FILES {
-  SND_RANDOM_MIN = 1,
-  SND_RANDOM_MAX = 4,
-  SND_SHAKE = 0,
-  SND_READY = 5, 
+  SND_RANDOM_MIN = 0,
+  SND_RANDOM_MAX = 5,
+  SND_SPECIAL = 1,
+  SND_SHAKE = 6,
+  SND_READY = 7, 
 };
 
 // Files should be called [digit].mp3
@@ -88,7 +94,7 @@ void setup () {
     #endif
   }
   
-  delay(1000);
+  delay(2000);
   MP3player.playMP3(filename[SND_READY]);
   #ifdef DEBUGGING
   Serial.println("Ready");

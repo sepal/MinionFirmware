@@ -1,4 +1,3 @@
-
 /**
  * Initializes the mp3 and sd card lib and fetches all sound files
  * from the sd card.
@@ -82,6 +81,25 @@ void sound_update() {
     Serial.println(fsr_value);
     #endif
     int file = random(SND_RANDOM_MIN, SND_RANDOM_MAX);
+    
+    if (file == SND_SPECIAL) {
+      special_mode = true;
+      led_on = true;
+      digitalWrite(LED_PIN, led_on ? HIGH : LOW);
+    }
+    
     MP3player.playMP3(filename[file]);
+  }
+  
+  if (!MP3player.isPlaying() && special_mode) {
+    special_mode = false;
+    led_on = false;
+    digitalWrite(LED_PIN, LOW);
+  } else if (MP3player.isPlaying() && special_mode) {
+    if (millis() - special_mode_timer >= SPECIAL_MODE_TIME) {
+      special_mode_timer = millis();
+      digitalWrite(LED_PIN, led_on ? HIGH : LOW);
+      led_on = !led_on;
+    } 
   }
 }
