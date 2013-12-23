@@ -12,9 +12,9 @@ long imu_timer = 0;
 
 int imu_shake_counter = 0;
 
-int imu_shake_timer = 0;
+long imu_shake_timer = 0;
 
-int led_timer = 0;
+long led_timer = 0;
 
 /**
  * Initializes the compass, which also holds the accelerometer.
@@ -84,12 +84,24 @@ void imu_update() {
     accel_read();
     
     if (abs(accel_x) >  IMU_SHAKE_THREASHOLD) {
+      #ifdef DEBUGGING
+      Serial.println("Shake it!");
+      #endif
       imu_shake_counter++;
       imu_shake_timer = millis();
     }
     
-    if (millis()-imu_shake_timer >=IMU_SHAKE_RESET_TIME) {
+    if (millis()-imu_shake_timer >= IMU_SHAKE_RESET_TIME && imu_shake_counter > 0) {
+      #ifdef DEBUGGING
+      Serial.print("Reseting shake counter.");
+      #endif
       imu_shake_counter = 0;
+      imu_shake_timer = millis();
+      
+      #ifdef DEBUGGING
+      Serial.print(imu_shake_timer);
+      Serial.println(millis());
+      #endif
     }
       
     
@@ -110,7 +122,7 @@ void imu_update() {
   
   if (millis()-led_timer >= LED_ON_TIME && led_on) {
     #ifdef DEBUGGING
-    Serial.println("turning of led.");
+    Serial.println("Turning led off.");
     #endif
     led_on = false;
     digitalWrite(LED_PIN, LOW);
